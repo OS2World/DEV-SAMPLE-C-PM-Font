@@ -25,7 +25,7 @@ VOID CreateFontAndDisplayIt( HWND hwnd, PFATTRS pfAttrs );
 MRESULT EXPENTRY ClientWndProc( HWND hwnd ,ULONG msg ,MPARAM mp1 ,MPARAM mp2 );
 MRESULT EXPENTRY FrameSubclassProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2);
 
-#define CLASSNAME "FONT_TEST"
+#define CLASSNAME (PCSZ) "FONT_TEST"
 
 CHAR    FaceName[32] = "";
 CHAR    pszText[100] = "Hello !";
@@ -35,7 +35,7 @@ HPS     hpsClient;
 FONTDLG fd ;
 BOOL    fFont = FALSE;
 
-void cdecl main(VOID)
+int main(VOID)
 {
 
    HMQ hmq;
@@ -46,7 +46,7 @@ void cdecl main(VOID)
                            FCF_TASKLIST   | FCF_TITLEBAR      | FCF_SYSMENU |
                            FCF_SIZEBORDER | FCF_MINMAX        | FCF_MENU ;
 
-   hab = WinInitialize( (USHORT)NULL );
+   hab = WinInitialize( (ULONG)NULL );
 
    hmq=WinCreateMsgQueue( hab,0 );
 
@@ -55,13 +55,13 @@ void cdecl main(VOID)
                    , CLASSNAME
                    , (PFNWP)ClientWndProc
                    , (ULONG)CS_SIZEREDRAW
-                   , (USHORT)256 );
+                   , (ULONG)256 );
 
    hwndFrame = WinCreateStdWindow( HWND_DESKTOP
                                  ,  0UL
                                  ,  &flCreateFlags
                                  ,  CLASSNAME
-                                 ,  "Fonts"
+                                 ,  (PCSZ) "Fonts"
                                  ,  WS_VISIBLE
                                  ,  (HMODULE)0
                                  ,  ID_FONT
@@ -144,6 +144,7 @@ MRESULT EXPENTRY ClientWndProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
        return( WinDefWindowProc( hwnd, msg, mp1, mp2 )) ;
      }
    }
+   return 0;
 }
 
 VOID DisplayFontDlg( HWND hwnd )
@@ -164,13 +165,13 @@ VOID DisplayFontDlg( HWND hwnd )
 
   fd.hpsScreen = hps;
   fd.cbSize    = sizeof( FONTDLG );
-  fd.pszFamilyname =  pszFamilyName ;
-  fd.pszTitle = pszTitle;
+  fd.pszFamilyname =  (PSZ) pszFamilyName ;
+  fd.pszTitle = (PSZ) pszTitle;
   fd.usFamilyBufLen = FACESIZE;
   fd.fxPointSize = (FIXED)0;
   fd.clrFore = CLR_BLACK;
   fd.clrBack = CLR_WHITE;
-  fd.pszPreview = "Sample Text";
+  fd.pszPreview = (PSZ) "Sample Text";
   fd.fl = FNTS_CENTER;
 
   WinFontDlg( HWND_DESKTOP, hwndFrame, &fd );
@@ -213,7 +214,7 @@ VOID CreateFontAndDisplayIt( HWND hwnd, PFATTRS pfAttrs )
 
  // Draw a text string at the current position, using our new logical font
 
- GpiCharString( hps, 6L,  "Hello!" );
+ GpiCharString( hps, 6L, (PCCH) "Hello!" );
 
  WinReleasePS( hps );
 }
@@ -221,7 +222,7 @@ VOID CreateFontAndDisplayIt( HWND hwnd, PFATTRS pfAttrs )
 VOID MyQueryFonts( HWND hwnd )
 {
    LONG lNum;  
-   LONG lRem;
+   //LONG lRem=0;
    LONG lReq=0;
    PFONTMETRICS pfm;
    HPS hps;
@@ -246,21 +247,17 @@ VOID MyQueryFonts( HWND hwnd )
    pfm = (PFONTMETRICS) malloc( sizeof(FONTMETRICS) *lNum );
 
    // Now query the metrics structures
-
-   lRem = GpiQueryFonts( hps
+	
+   /* lRem = GpiQueryFonts( hps
                        , QF_PUBLIC | QF_PRIVATE
                        , NULL
                        , &lNum
                        , sizeof(FONTMETRICS)
                        , pfm
                        );
-
+	*/
    // Free resources
 
    free( pfm );
    WinReleasePS( hps );
 }
-
-
-
-
